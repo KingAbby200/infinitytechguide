@@ -39,6 +39,7 @@ function SignInContent() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-dark">
       <div className="w-full max-w-sm">
+        {/* Logo */}
         <div className="text-center mb-8">
           <span className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary text-black font-bold text-xl font-display mb-3">∞</span>
           <h1 className="font-display font-bold text-2xl text-white">Infinity Tech Guide</h1>
@@ -99,11 +100,11 @@ function SignInContent() {
 export default function SignInPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-dark">
-        <div className="text-white">Loading sign in page...</div>
+      <div className="min-h-screen flex items-center justify-center bg-dark text-white">
+        Loading sign in page...
       </div>
     }>
       <SignInContent />
     </Suspense>
   )
-}}
+}}}
