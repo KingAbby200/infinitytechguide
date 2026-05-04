@@ -1,8 +1,7 @@
 'use client'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
 
 function SignInContent() {
   const router = useRouter()
@@ -33,6 +32,7 @@ function SignInContent() {
       setLoading(false)
     } else {
       router.push(callbackUrl)
+      router.refresh()        // Force refresh after redirect
     }
   }
 
@@ -89,20 +89,17 @@ function SignInContent() {
         </div>
 
         <p className="text-center text-gray-600 text-xs mt-6">
-          This page is for staff only and is not publicly accessible.
+          This page is for staff only.
         </p>
       </div>
     </div>
   )
 }
 
+// Simple wrapper
 export default function SignInPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-dark text-white">
-        Loading sign in page...
-      </div>
-    }>
+    <Suspense fallback={<div className="min-h-screen bg-dark flex items-center justify-center text-white">Loading...</div>}>
       <SignInContent />
     </Suspense>
   )
