@@ -69,7 +69,7 @@ export default function EditorToolbar({ editor, onInsertImage }) {
     setShowLinkInput(false)
   }
 
-  function setFontSize(size: string) {
+  function setFontSize(size) {
     editor.chain().focus().setMark('textStyle', { fontSize: size }).run()
   }
 
@@ -150,7 +150,7 @@ export default function EditorToolbar({ editor, onInsertImage }) {
 
         <Divider />
 
-        {/* Lists */}
+        {/* Lists & Blocks */}
         <ToolBtn onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')} title="Bullet list">
           <List size={18} />
         </ToolBtn>
