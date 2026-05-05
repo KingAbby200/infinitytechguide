@@ -1,6 +1,7 @@
 import { connectDB } from '@/lib/mongoose'
 import Post from '@/models/Post'
 import Category from '@/models/Category'
+import User from '@/models/User'
 import PostCard from '@/components/blog/PostCard'
 import SearchBar from '@/components/blog/SearchBar'
 import BlogFilters from '@/components/blog/BlogFilters'
