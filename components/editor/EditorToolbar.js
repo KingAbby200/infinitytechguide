@@ -56,7 +56,7 @@ export default function EditorToolbar({ editor, onInsertImage }) {
 
   if (!editor) return null
 
-  // Improved Link Handler
+  // Improved & safer Link Handler
   function setLink() {
     if (!linkUrl) {
       editor.chain().focus().unsetLink().run()
@@ -65,21 +65,14 @@ export default function EditorToolbar({ editor, onInsertImage }) {
     }
 
     const url = linkUrl.startsWith('http') ? linkUrl : `https://${linkUrl}`
+    const text = linkText.trim() || url
 
-    // Better way to handle link + optional text
-    if (linkText && editor.state.selection.empty) {
-      editor
-        .chain()
-        .focus()
-        .insertContent({
-          type: 'text',
-          text: linkText,
-          marks: [{ type: 'link', attrs: { href: url } }],
-        })
-        .run()
-    } else {
-      editor.chain().focus().setLink({ href: url }).run()
-    }
+    // Most reliable method: use HTML string
+    editor
+      .chain()
+      .focus()
+      .insertContent(`<a href="${url}" target="_blank" rel="noopener noreferrer">${text}</a>`)
+      .run()
 
     setLinkUrl('')
     setLinkText('')
