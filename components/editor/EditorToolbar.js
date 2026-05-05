@@ -3,7 +3,7 @@ import { useState } from 'react'
 import {
   Bold,
   Italic,
-  Code,
+  Code2,
   Underline,
   List,
   ListOrdered,
@@ -28,10 +28,7 @@ function ToolBtn({ onClick, active, disabled, title, children }) {
   return (
     <button
       type="button"
-      onMouseDown={(e) => {
-        e.preventDefault()
-        onClick?.()
-      }}
+      onMouseDown={(e) => { e.preventDefault(); onClick?.() }}
       disabled={disabled}
       title={title}
       className={`w-8 h-8 flex items-center justify-center rounded text-sm transition-all ${
@@ -56,23 +53,27 @@ export default function EditorToolbar({ editor, onInsertImage }) {
 
   if (!editor) return null
 
-  // Improved & safer Link Handler
+  // Most stable link insertion using Tiptap's built-in command
   function setLink() {
-    if (!linkUrl) {
+    if (!linkUrl?.trim()) {
       editor.chain().focus().unsetLink().run()
       setShowLinkInput(false)
       return
     }
 
     const url = linkUrl.startsWith('http') ? linkUrl : `https://${linkUrl}`
-    const text = linkText.trim() || url
 
-    // Most reliable method: use HTML string
     editor
       .chain()
       .focus()
-      .insertContent(`<a href="${url}" target="_blank" rel="noopener noreferrer">${text}</a>`)
+      .extendMarkRange('link')
+      .setLink({ href: url, target: '_blank', rel: 'noopener noreferrer' })
       .run()
+
+    // If user provided text and nothing is selected, insert it as a link
+    if (linkText?.trim() && editor.state.selection.empty) {
+      editor.chain().focus().insertContent(linkText.trim()).run()
+    }
 
     setLinkUrl('')
     setLinkText('')
@@ -138,7 +139,7 @@ export default function EditorToolbar({ editor, onInsertImage }) {
           <Strikethrough size={18} />
         </ToolBtn>
         <ToolBtn onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive('code')} title="Inline code">
-          <Code size={18} />
+          <Code2 size={18} />
         </ToolBtn>
 
         <Divider />
@@ -172,7 +173,7 @@ export default function EditorToolbar({ editor, onInsertImage }) {
         </ToolBtn>
 
         <ToolBtn onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={editor.isActive('codeBlock')} title="Code block">
-          <Code size={18} />
+          <Code2 size={18} />
         </ToolBtn>
 
         <ToolBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Horizontal rule">
@@ -181,7 +182,7 @@ export default function EditorToolbar({ editor, onInsertImage }) {
 
         <Divider />
 
-        {/* Link */}
+        {/* Link Button */}
         <ToolBtn
           onClick={() => {
             if (editor.isActive('link')) {
@@ -191,7 +192,7 @@ export default function EditorToolbar({ editor, onInsertImage }) {
             }
           }}
           active={editor.isActive('link')}
-          title="Insert link"
+          title="Insert / Edit link"
         >
           {editor.isActive('link') ? <LinkOff size={18} /> : <LinkIcon size={18} />}
         </ToolBtn>
