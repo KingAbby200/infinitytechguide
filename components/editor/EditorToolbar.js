@@ -3,8 +3,8 @@ import { useState } from 'react'
 import {
   Bold,
   Italic,
-  Code2,
   Underline,
+  Strikethrough,
   List,
   ListOrdered,
   Quote,
@@ -18,7 +18,6 @@ import {
   Minus,
   Undo,
   Redo,
-  Strikethrough,
 } from 'lucide-react'
 
 const FONT_SIZES = ['12px', '14px', '16px', '18px', '20px', '24px', '28px', '32px', '36px', '48px']
@@ -32,9 +31,7 @@ function ToolBtn({ onClick, active, disabled, title, children }) {
       disabled={disabled}
       title={title}
       className={`w-8 h-8 flex items-center justify-center rounded text-sm transition-all ${
-        active
-          ? 'bg-primary text-black'
-          : 'text-gray-400 hover:text-white hover:bg-white/8'
+        active ? 'bg-primary text-black' : 'text-gray-400 hover:text-white hover:bg-white/8'
       } disabled:opacity-30 disabled:cursor-not-allowed`}
     >
       {children}
@@ -53,7 +50,6 @@ export default function EditorToolbar({ editor, onInsertImage }) {
 
   if (!editor) return null
 
-  // Most stable link insertion using Tiptap's built-in command
   function setLink() {
     if (!linkUrl?.trim()) {
       editor.chain().focus().unsetLink().run()
@@ -63,31 +59,20 @@ export default function EditorToolbar({ editor, onInsertImage }) {
 
     const url = linkUrl.startsWith('http') ? linkUrl : `https://${linkUrl}`
 
-    editor
-      .chain()
+    editor.chain()
       .focus()
       .extendMarkRange('link')
-      .setLink({ href: url, target: '_blank', rel: 'noopener noreferrer' })
+      .setLink({ href: url })
       .run()
-
-    // If user provided text and nothing is selected, insert it as a link
-    if (linkText?.trim() && editor.state.selection.empty) {
-      editor.chain().focus().insertContent(linkText.trim()).run()
-    }
 
     setLinkUrl('')
     setLinkText('')
     setShowLinkInput(false)
   }
 
-  function setFontSize(size) {
-    editor.chain().focus().setMark('textStyle', { fontSize: size }).run()
-  }
-
   return (
     <div className="border-b border-dark-border bg-dark-card">
       <div className="flex flex-wrap items-center gap-0.5 p-2">
-        {/* Undo / Redo */}
         <ToolBtn onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="Undo">
           <Undo size={18} />
         </ToolBtn>
@@ -97,7 +82,6 @@ export default function EditorToolbar({ editor, onInsertImage }) {
 
         <Divider />
 
-        {/* Headings */}
         {HEADINGS.map((level) => (
           <ToolBtn
             key={level}
@@ -109,23 +93,8 @@ export default function EditorToolbar({ editor, onInsertImage }) {
           </ToolBtn>
         ))}
 
-        {/* Font Size */}
-        <select
-          onMouseDown={(e) => e.stopPropagation()}
-          onChange={(e) => setFontSize(e.target.value)}
-          className="h-8 px-1.5 rounded text-xs bg-dark border border-dark-border text-gray-300 focus:outline-none focus:border-primary/50 ml-0.5"
-          defaultValue=""
-          title="Font size"
-        >
-          <option value="" disabled>Size</option>
-          {FONT_SIZES.map((s) => (
-            <option key={s} value={s}>{s}</option>
-          ))}
-        </select>
-
         <Divider />
 
-        {/* Formatting */}
         <ToolBtn onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')} title="Bold">
           <Bold size={18} />
         </ToolBtn>
@@ -138,29 +107,9 @@ export default function EditorToolbar({ editor, onInsertImage }) {
         <ToolBtn onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive('strike')} title="Strikethrough">
           <Strikethrough size={18} />
         </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive('code')} title="Inline code">
-          <Code2 size={18} />
-        </ToolBtn>
 
         <Divider />
 
-        {/* Alignment */}
-        <ToolBtn onClick={() => editor.chain().focus().setTextAlign('left').run()} active={editor.isActive({ textAlign: 'left' })} title="Align left">
-          <AlignLeft size={18} />
-        </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().setTextAlign('center').run()} active={editor.isActive({ textAlign: 'center' })} title="Align center">
-          <AlignCenter size={18} />
-        </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().setTextAlign('right').run()} active={editor.isActive({ textAlign: 'right' })} title="Align right">
-          <AlignRight size={18} />
-        </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().setTextAlign('justify').run()} active={editor.isActive({ textAlign: 'justify' })} title="Justify">
-          <AlignJustify size={18} />
-        </ToolBtn>
-
-        <Divider />
-
-        {/* Lists & Blocks */}
         <ToolBtn onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')} title="Bullet list">
           <List size={18} />
         </ToolBtn>
@@ -172,27 +121,23 @@ export default function EditorToolbar({ editor, onInsertImage }) {
           <Quote size={18} />
         </ToolBtn>
 
-        <ToolBtn onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={editor.isActive('codeBlock')} title="Code block">
-          <Code2 size={18} />
-        </ToolBtn>
-
         <ToolBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Horizontal rule">
           <Minus size={18} />
         </ToolBtn>
 
         <Divider />
 
-        {/* Link Button */}
+        {/* Link Button - This is the critical one */}
         <ToolBtn
           onClick={() => {
             if (editor.isActive('link')) {
               editor.chain().focus().unsetLink().run()
             } else {
-              setShowLinkInput((v) => !v)
+              setShowLinkInput(v => !v)
             }
           }}
           active={editor.isActive('link')}
-          title="Insert / Edit link"
+          title="Insert link"
         >
           {editor.isActive('link') ? <LinkOff size={18} /> : <LinkIcon size={18} />}
         </ToolBtn>
@@ -210,7 +155,7 @@ export default function EditorToolbar({ editor, onInsertImage }) {
             placeholder="Link text (optional)"
             value={linkText}
             onChange={(e) => setLinkText(e.target.value)}
-            className="flex-1 min-w-[160px] px-3 py-1.5 rounded-lg bg-dark-card border border-dark-border text-white placeholder-gray-600 text-sm focus:outline-none focus:border-primary/50"
+            className="flex-1 min-w-[160px] px-3 py-1.5 rounded-lg bg-dark-card border border-dark-border text-white placeholder-gray-600 text-sm"
           />
           <input
             type="url"
@@ -218,7 +163,7 @@ export default function EditorToolbar({ editor, onInsertImage }) {
             value={linkUrl}
             onChange={(e) => setLinkUrl(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && setLink()}
-            className="flex-1 min-w-[200px] px-3 py-1.5 rounded-lg bg-dark-card border border-dark-border text-white placeholder-gray-600 text-sm focus:outline-none focus:border-primary/50"
+            className="flex-1 min-w-[200px] px-3 py-1.5 rounded-lg bg-dark-card border border-dark-border text-white placeholder-gray-600 text-sm"
             autoFocus
           />
           <button
