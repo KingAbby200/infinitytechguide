@@ -1,18 +1,28 @@
 'use client'
 import { useState } from 'react'
 import {
-  HiBold, HiItalic, HiCode,
-} from 'react-icons/hi'
-import {
-  MdFormatUnderlined, MdFormatListBulleted, MdFormatListNumbered,
-  MdFormatQuote, MdFormatAlignLeft, MdFormatAlignCenter,
-  MdFormatAlignRight, MdFormatAlignJustify, MdImage,
-  MdLink, MdLinkOff, MdHorizontalRule, MdUndo, MdRedo,
-  MdCode, MdStrikethroughS,
-} from 'react-icons/md'
+  Bold,
+  Italic,
+  Code,
+  Underline,
+  List,
+  ListOrdered,
+  Quote,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  Image,
+  Link,
+  LinkOff,
+  Minus,
+  Undo,
+  Redo,
+  Strikethrough,
+} from 'lucide-react'
 
 const FONT_SIZES = ['12px', '14px', '16px', '18px', '20px', '24px', '28px', '32px', '36px', '48px']
-const HEADINGS   = [1, 2, 3, 4]
+const HEADINGS = [1, 2, 3, 4]
 
 function ToolBtn({ onClick, active, disabled, title, children }) {
   return (
@@ -38,8 +48,8 @@ function Divider() {
 
 export default function EditorToolbar({ editor, onInsertImage }) {
   const [showLinkInput, setShowLinkInput] = useState(false)
-  const [linkUrl,   setLinkUrl]   = useState('')
-  const [linkText,  setLinkText]  = useState('')
+  const [linkUrl, setLinkUrl] = useState('')
+  const [linkText, setLinkText] = useState('')
 
   if (!editor) return null
 
@@ -59,7 +69,7 @@ export default function EditorToolbar({ editor, onInsertImage }) {
     setShowLinkInput(false)
   }
 
-  function setFontSize(size) {
+  function setFontSize(size: string) {
     editor.chain().focus().setMark('textStyle', { fontSize: size }).run()
   }
 
@@ -69,10 +79,10 @@ export default function EditorToolbar({ editor, onInsertImage }) {
       <div className="flex flex-wrap items-center gap-0.5 p-2">
         {/* Undo / Redo */}
         <ToolBtn onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="Undo">
-          <MdUndo size={17} />
+          <Undo size={18} />
         </ToolBtn>
         <ToolBtn onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="Redo">
-          <MdRedo size={17} />
+          <Redo size={18} />
         </ToolBtn>
 
         <Divider />
@@ -107,54 +117,54 @@ export default function EditorToolbar({ editor, onInsertImage }) {
 
         {/* Inline marks */}
         <ToolBtn onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')} title="Bold">
-          <HiBold size={15} />
+          <Bold size={18} />
         </ToolBtn>
         <ToolBtn onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')} title="Italic">
-          <HiItalic size={15} />
+          <Italic size={18} />
         </ToolBtn>
         <ToolBtn onClick={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive('underline')} title="Underline">
-          <MdFormatUnderlined size={17} />
+          <Underline size={18} />
         </ToolBtn>
         <ToolBtn onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive('strike')} title="Strikethrough">
-          <MdStrikethroughS size={17} />
+          <Strikethrough size={18} />
         </ToolBtn>
         <ToolBtn onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive('code')} title="Inline code">
-          <HiCode size={15} />
+          <Code size={18} />
         </ToolBtn>
 
         <Divider />
 
         {/* Alignment */}
         <ToolBtn onClick={() => editor.chain().focus().setTextAlign('left').run()} active={editor.isActive({ textAlign: 'left' })} title="Align left">
-          <MdFormatAlignLeft size={17} />
+          <AlignLeft size={18} />
         </ToolBtn>
         <ToolBtn onClick={() => editor.chain().focus().setTextAlign('center').run()} active={editor.isActive({ textAlign: 'center' })} title="Align center">
-          <MdFormatAlignCenter size={17} />
+          <AlignCenter size={18} />
         </ToolBtn>
         <ToolBtn onClick={() => editor.chain().focus().setTextAlign('right').run()} active={editor.isActive({ textAlign: 'right' })} title="Align right">
-          <MdFormatAlignRight size={17} />
+          <AlignRight size={18} />
         </ToolBtn>
         <ToolBtn onClick={() => editor.chain().focus().setTextAlign('justify').run()} active={editor.isActive({ textAlign: 'justify' })} title="Justify">
-          <MdFormatAlignJustify size={17} />
+          <AlignJustify size={18} />
         </ToolBtn>
 
         <Divider />
 
         {/* Lists */}
         <ToolBtn onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')} title="Bullet list">
-          <MdFormatListBulleted size={17} />
+          <List size={18} />
         </ToolBtn>
         <ToolBtn onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive('orderedList')} title="Numbered list">
-          <MdFormatListNumbered size={17} />
+          <ListOrdered size={18} />
         </ToolBtn>
         <ToolBtn onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive('blockquote')} title="Blockquote">
-          <MdFormatQuote size={17} />
+          <Quote size={18} />
         </ToolBtn>
         <ToolBtn onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={editor.isActive('codeBlock')} title="Code block">
-          <MdCode size={17} />
+          <Code size={18} />
         </ToolBtn>
         <ToolBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Horizontal rule">
-          <MdHorizontalRule size={17} />
+          <Minus size={18} />
         </ToolBtn>
 
         <Divider />
@@ -171,12 +181,12 @@ export default function EditorToolbar({ editor, onInsertImage }) {
           active={editor.isActive('link')}
           title="Insert link"
         >
-          {editor.isActive('link') ? <MdLinkOff size={17} /> : <MdLink size={17} />}
+          {editor.isActive('link') ? <LinkOff size={18} /> : <Link size={18} />}
         </ToolBtn>
 
         {/* Image */}
         <ToolBtn onClick={onInsertImage} title="Insert image">
-          <MdImage size={17} />
+          <Image size={18} />
         </ToolBtn>
       </div>
 
