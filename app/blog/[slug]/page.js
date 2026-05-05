@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { format } from 'date-fns'
 import { connectDB } from '@/lib/mongoose'
+import User from '@/models/User'
 import Post from '@/models/Post'
 import RecommendedPosts from '@/components/blog/RecommendedPosts'
 import NewsletterSignup from '@/components/blog/NewsletterSignup'
