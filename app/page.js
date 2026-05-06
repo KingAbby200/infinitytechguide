@@ -29,23 +29,33 @@ export default async function HomePage() {
 
   return (
     <div className="pt-16">
-      {/* ── Hero ── */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        {/* Background grid */}
-        <div className="absolute inset-0 bg-grid-dark opacity-60" />
-        {/* Green glow */}
-        <div className="absolute inset-0 bg-glow-green pointer-events-none" />
-        {/* Radial vignette */}
-        <div className="absolute inset-0 bg-radial-[ellipse_at_center] from-transparent to-dark pointer-events-none" />
 
-        <div className="relative max-w-5xl mx-auto px-4 text-center py-24">
-          {/* Eyebrow */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium mb-8 animate-fade-in">
+      {/* ══════════════════════════════════════════
+          HERO
+          Dark:  deep black bg, white text
+          Light: clean white bg, dark text + green accents
+      ══════════════════════════════════════════ */}
+      <section className="hero-section relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+
+        {/* Grid overlay — dark: visible, light: very subtle */}
+        <div className="absolute inset-0 hero-grid pointer-events-none" />
+
+        {/* Green radial glow */}
+        <div className="absolute inset-0 hero-glow pointer-events-none" />
+
+        {/* Bottom fade into page background */}
+        <div className="absolute bottom-0 inset-x-0 h-32 hero-fade pointer-events-none" />
+
+        <div className="relative max-w-5xl mx-auto px-4 text-center py-24 z-10">
+
+          {/* Eyebrow pill */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/40 bg-primary/10 text-primary text-sm font-medium mb-8 animate-fade-in">
             <HiLightningBolt size={14} />
             Your Gateway to the Tech Universe
           </div>
 
-          <h1 className="font-display font-bold text-5xl sm:text-6xl lg:text-7xl text-white mb-6 leading-tight animate-slide-up">
+          {/* Headline — uses hero-heading class for theme-aware colour */}
+          <h1 className="hero-heading font-display font-bold text-5xl sm:text-6xl lg:text-7xl mb-6 leading-tight animate-slide-up">
             The Future of{' '}
             <span className="text-primary relative">
               Technology
@@ -54,11 +64,13 @@ export default async function HomePage() {
             {' '}is Here
           </h1>
 
-          <p className="text-gray-400 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed animate-slide-up" style={{ animationDelay: '100ms' }}>
+          {/* Sub-headline */}
+          <p className="hero-sub text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed animate-slide-up" style={{ animationDelay: '100ms' }}>
             Expert gadget reviews, deep-dive tech guides, and the freshest products —
             all in one place built for true tech enthusiasts.
           </p>
 
+          {/* CTA buttons */}
           <div className="flex flex-wrap justify-center gap-4 animate-slide-up" style={{ animationDelay: '200ms' }}>
             <Link
               href="/blog"
@@ -68,7 +80,7 @@ export default async function HomePage() {
             </Link>
             <Link
               href="/shop"
-              className="px-8 py-3 rounded-xl text-base flex items-center gap-2 bg-dark-card border border-dark-border text-white hover:border-primary/30 transition-all"
+              className="hero-btn-secondary px-8 py-3 rounded-xl text-base flex items-center gap-2 border transition-all hover:border-primary/40"
             >
               <HiShoppingCart size={18} className="text-primary" /> Shop Gadgets
             </Link>
@@ -77,30 +89,29 @@ export default async function HomePage() {
           {/* Stats */}
           <div className="flex flex-wrap justify-center gap-8 mt-16 text-sm animate-fade-in" style={{ animationDelay: '400ms' }}>
             {[
-              { value: recentPosts.length + '+', label: 'Published Posts' },
+              { value: recentPosts.length + '+',     label: 'Published Posts' },
               { value: featuredProducts.length + '+', label: 'Gadgets In Stock' },
-              { value: '100%', label: 'Honest Reviews' },
+              { value: '100%',                        label: 'Honest Reviews' },
             ].map(stat => (
               <div key={stat.label} className="text-center">
                 <div className="text-2xl font-display font-bold text-primary">{stat.value}</div>
-                <div className="text-gray-500 mt-1">{stat.label}</div>
+                <div className="hero-stat-label mt-1">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
-
-        {/* Bottom fade */}
-        <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-dark to-transparent pointer-events-none" />
       </section>
 
-      {/* ── Recent Posts ── */}
+      {/* ══════════════════════════════════════════
+          RECENT POSTS
+      ══════════════════════════════════════════ */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="flex items-end justify-between mb-10">
           <div>
             <p className="text-primary text-sm font-medium mb-2 uppercase tracking-wider">Latest from the blog</p>
-            <h2 className="font-display font-bold text-3xl sm:text-4xl text-white">Recent Posts</h2>
+            <h2 className="font-display font-bold text-3xl sm:text-4xl section-heading">Recent Posts</h2>
           </div>
-          <Link href="/blog" className="hidden sm:flex items-center gap-2 text-primary hover:text-primary-400 text-sm font-medium transition-colors">
+          <Link href="/blog" className="hidden sm:flex items-center gap-2 text-primary text-sm font-medium transition-colors hover:opacity-80">
             View all <HiArrowRight size={16} />
           </Link>
         </div>
@@ -112,7 +123,7 @@ export default async function HomePage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-20 text-gray-500">
+          <div className="text-center py-20 section-muted">
             <p className="text-lg">No posts published yet. Check back soon!</p>
           </div>
         )}
@@ -124,19 +135,21 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Divider ── */}
+      {/* Divider */}
       <div className="max-w-7xl mx-auto px-4">
         <div className="h-px bg-gradient-to-r from-transparent via-dark-border to-transparent" />
       </div>
 
-      {/* ── Featured Shop ── */}
+      {/* ══════════════════════════════════════════
+          FEATURED SHOP
+      ══════════════════════════════════════════ */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="flex items-end justify-between mb-10">
           <div>
             <p className="text-primary text-sm font-medium mb-2 uppercase tracking-wider">Tech store</p>
-            <h2 className="font-display font-bold text-3xl sm:text-4xl text-white">Featured Gadgets</h2>
+            <h2 className="font-display font-bold text-3xl sm:text-4xl section-heading">Featured Gadgets</h2>
           </div>
-          <Link href="/shop" className="hidden sm:flex items-center gap-2 text-primary hover:text-primary-400 text-sm font-medium transition-colors">
+          <Link href="/shop" className="hidden sm:flex items-center gap-2 text-primary text-sm font-medium transition-colors hover:opacity-80">
             Shop all <HiArrowRight size={16} />
           </Link>
         </div>
@@ -148,13 +161,13 @@ export default async function HomePage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-20 text-gray-500">
+          <div className="text-center py-20 section-muted">
             <p className="text-lg">Products coming soon!</p>
           </div>
         )}
       </section>
 
-      {/* ── Newsletter ── */}
+      {/* Newsletter */}
       <section className="py-20">
         <NewsletterSignup hero />
       </section>
