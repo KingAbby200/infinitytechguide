@@ -37,9 +37,9 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="bg-dark text-gray-200 min-h-screen flex flex-col antialiased">
+      <body className="bg-dark dark:bg-dark text-gray-200 dark:text-gray-200 min-h-screen flex flex-col antialiased transition-colors duration-300">
         <SessionWrapper>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} forcedTheme="dark">
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
             <CartProvider>
               <Navbar />
               <main className="flex-1">
