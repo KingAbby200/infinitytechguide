@@ -3,10 +3,11 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
+import { useTheme } from 'next-themes'
 import { useCart } from '@/lib/cartStore'
 import {
   HiMenu, HiX, HiShoppingCart, HiSearch, HiChevronDown,
-  HiUser, HiLogout, HiCog, HiPencil,
+  HiUser, HiLogout, HiCog, HiPencil, HiSun, HiMoon,
 } from 'react-icons/hi'
 
 const NAV_LINKS = [
@@ -14,6 +15,40 @@ const NAV_LINKS = [
   { label: 'Shop',  href: '/shop' },
   { label: 'About', href: '/about' },
 ]
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  // Avoid hydration mismatch — only render after mount
+  useEffect(() => setMounted(true), [])
+  if (!mounted) return <div className="w-9 h-9" />
+
+  const isDark = theme === 'dark'
+
+  return (
+    <button
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      className="relative w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all group"
+    >
+      {/* Sun — shown in dark mode */}
+      <HiSun
+        size={18}
+        className={`absolute transition-all duration-300 ${
+          isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-75'
+        }`}
+      />
+      {/* Moon — shown in light mode */}
+      <HiMoon
+        size={18}
+        className={`absolute transition-all duration-300 ${
+          isDark ? 'opacity-0 rotate-90 scale-75' : 'opacity-100 rotate-0 scale-100 text-gray-600 group-hover:text-gray-900'
+        }`}
+      />
+    </button>
+  )
+}
 
 export default function Navbar() {
   const pathname              = usePathname()
@@ -36,7 +71,7 @@ export default function Navbar() {
   return (
     <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
       scrolled
-        ? 'bg-dark/95 backdrop-blur-md border-b border-dark-border shadow-card'
+        ? 'bg-dark/95 dark:bg-dark/95 light:bg-white/95 backdrop-blur-md border-b border-dark-border shadow-card'
         : 'bg-transparent'
     }`}>
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -69,7 +104,7 @@ export default function Navbar() {
         </div>
 
         {/* Right side actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           {/* Search */}
           <Link
             href="/search"
@@ -93,9 +128,12 @@ export default function Navbar() {
             )}
           </button>
 
+          {/* Theme toggle */}
+          <ThemeToggle />
+
           {/* User menu */}
           {session ? (
-            <div className="relative">
+            <div className="relative ml-1">
               <button
                 onClick={() => setUserMenu(!userMenu)}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-dark-card border border-dark-border hover:border-primary/30 transition-all"
