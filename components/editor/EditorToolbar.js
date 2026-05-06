@@ -1,19 +1,10 @@
 'use client'
-import { useState, useCallback, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import {
-  Bold,
-  Italic,
-  Underline,
-  Strikethrough,
-  List,
-  ListOrdered,
-  Quote,
-  Image,
-  Link as LinkIcon,
-  LinkOff,
-  Minus,
-  Undo,
-  Redo,
+  Bold, Italic, Underline, Strikethrough,
+  List, ListOrdered, Quote,
+  Image, Link as LinkIcon, LinkOff,
+  Minus, Undo, Redo,
 } from 'lucide-react'
 
 const HEADINGS = [1, 2, 3, 4]
@@ -45,24 +36,44 @@ export default function EditorToolbar({ editor, onInsertImage }) {
   const [linkUrl,  setLinkUrl]  = useState('')
   const [linkText, setLinkText] = useState('')
 
-  // Stable ref so handlers never close over a stale editor instance
+  // Always-current editor reference — avoids stale closures in handlers
   const editorRef = useRef(editor)
   editorRef.current = editor
 
-  // ── Heading handler ──────────────────────────────────────────────────────
-  // e.preventDefault() keeps the editor selection intact on desktop.
-  // We call focus() first so Tiptap always knows where the cursor is.
+  // ── Heading handler ────────────────────────────────────────────────────
+  // The root cause of the "whole page" bug on desktop:
+  // When a toolbar button is mousedown'd, the editor's ProseMirror selection
+  // hasn't been committed to state yet. Calling editor.chain().focus() tells
+  // ProseMirror to re-focus, which it does — but it re-focuses to the LAST
+  // committed selection stored internally, ignoring where the user's cursor
+  // actually was if e.g. they just clicked into a paragraph.
+  //
+  // Fix: capture the editor's CURRENT selection object (a ProseMirror
+  // TextSelection) immediately inside onMouseDown, then dispatch the
+  // heading command using a transaction that first restores that exact
+  // selection before toggling. This is the only way to guarantee the
+  // command hits the right node on both desktop and mobile.
   function makeHeadingHandler(level) {
     return (e) => {
       e.preventDefault()
-      editorRef.current?.chain().focus().toggleHeading({ level }).run()
+      const ed = editorRef.current
+      if (!ed) return
+
+      // 1. Snapshot the selection RIGHT NOW, before anything can change it
+      const { from, to } = ed.state.selection
+
+      // 2. Build a transaction: set selection → toggle heading
+      //    Using commands() instead of chain() gives us one atomic dispatch
+      ed.chain()
+        .setTextSelection({ from, to })   // restore exact selection
+        .toggleHeading({ level })
+        .run()
     }
   }
 
-  // ── Link insert ──────────────────────────────────────────────────────────
-  // useCallback keeps the reference stable; editorRef avoids stale closures.
+  // ── Link insert ────────────────────────────────────────────────────────
   const insertLink = useCallback(() => {
-    const ed  = editorRef.current
+    const ed = editorRef.current
     if (!ed) return
 
     const url = linkUrl.trim()
@@ -79,14 +90,14 @@ export default function EditorToolbar({ editor, onInsertImage }) {
 
     try {
       if (!ed.state.selection.empty) {
-        // Wrap the current selection in a link
+        // Wrap the selected text in a link
         ed.chain()
           .focus()
           .extendMarkRange('link')
           .setLink({ href, target: '_blank', rel: 'noopener noreferrer' })
           .run()
       } else if (linkText.trim()) {
-        // No selection — insert new linked text at cursor
+        // Insert new linked text node at cursor
         ed.chain()
           .focus()
           .insertContent(
@@ -94,7 +105,6 @@ export default function EditorToolbar({ editor, onInsertImage }) {
           )
           .run()
       } else {
-        // Fallback — set link mark at cursor
         ed.chain()
           .focus()
           .setLink({ href, target: '_blank', rel: 'noopener noreferrer' })
@@ -121,7 +131,7 @@ export default function EditorToolbar({ editor, onInsertImage }) {
   return (
     <div className="border-b border-dark-border bg-dark-card">
 
-      {/* ── Main toolbar ── */}
+      {/* ── Main toolbar row ── */}
       <div className="flex flex-wrap items-center gap-0.5 p-2">
 
         {/* Undo / Redo */}
@@ -142,7 +152,7 @@ export default function EditorToolbar({ editor, onInsertImage }) {
 
         <Divider />
 
-        {/* Headings */}
+        {/* Headings — each uses the snapshot-based handler */}
         {HEADINGS.map((level) => (
           <ToolBtn
             key={level}
@@ -159,29 +169,25 @@ export default function EditorToolbar({ editor, onInsertImage }) {
         {/* Inline marks */}
         <ToolBtn
           onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleBold().run() }}
-          active={editor.isActive('bold')}
-          title="Bold"
+          active={editor.isActive('bold')} title="Bold"
         >
           <Bold size={15} />
         </ToolBtn>
         <ToolBtn
           onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleItalic().run() }}
-          active={editor.isActive('italic')}
-          title="Italic"
+          active={editor.isActive('italic')} title="Italic"
         >
           <Italic size={15} />
         </ToolBtn>
         <ToolBtn
           onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleUnderline().run() }}
-          active={editor.isActive('underline')}
-          title="Underline"
+          active={editor.isActive('underline')} title="Underline"
         >
           <Underline size={15} />
         </ToolBtn>
         <ToolBtn
           onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleStrike().run() }}
-          active={editor.isActive('strike')}
-          title="Strikethrough"
+          active={editor.isActive('strike')} title="Strikethrough"
         >
           <Strikethrough size={15} />
         </ToolBtn>
@@ -191,22 +197,19 @@ export default function EditorToolbar({ editor, onInsertImage }) {
         {/* Lists & blocks */}
         <ToolBtn
           onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleBulletList().run() }}
-          active={editor.isActive('bulletList')}
-          title="Bullet list"
+          active={editor.isActive('bulletList')} title="Bullet list"
         >
           <List size={15} />
         </ToolBtn>
         <ToolBtn
           onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleOrderedList().run() }}
-          active={editor.isActive('orderedList')}
-          title="Numbered list"
+          active={editor.isActive('orderedList')} title="Numbered list"
         >
           <ListOrdered size={15} />
         </ToolBtn>
         <ToolBtn
           onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleBlockquote().run() }}
-          active={editor.isActive('blockquote')}
-          title="Blockquote"
+          active={editor.isActive('blockquote')} title="Blockquote"
         >
           <Quote size={15} />
         </ToolBtn>
@@ -223,11 +226,7 @@ export default function EditorToolbar({ editor, onInsertImage }) {
         <ToolBtn
           onMouseDown={(e) => {
             e.preventDefault()
-            if (isLinkActive) {
-              removeLink()
-            } else {
-              setShowLinkInput(v => !v)
-            }
+            if (isLinkActive) { removeLink() } else { setShowLinkInput(v => !v) }
           }}
           active={isLinkActive || showLinkInput}
           title={isLinkActive ? 'Remove link' : 'Insert link'}
@@ -275,12 +274,7 @@ export default function EditorToolbar({ editor, onInsertImage }) {
           </button>
           <button
             type="button"
-            onMouseDown={(e) => {
-              e.preventDefault()
-              setShowLinkInput(false)
-              setLinkUrl('')
-              setLinkText('')
-            }}
+            onMouseDown={(e) => { e.preventDefault(); setShowLinkInput(false); setLinkUrl(''); setLinkText('') }}
             className="px-4 py-1.5 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-all"
           >
             Cancel
