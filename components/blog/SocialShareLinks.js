@@ -1,10 +1,9 @@
-import { FaXTwitter, FaTiktok, FaFacebook, FaYoutube } from 'react-icons/fa6'
+import { FaXTwitter, FaTiktok, FaWhatsapp } from 'react-icons/fa6'
 
 const SOCIALS = [
-  { Icon: FaXTwitter, key: 'NEXT_PUBLIC_TWITTER_URL',  label: 'X / Twitter', color: 'hover:text-[#1DA1F2]' },
-  { Icon: FaTiktok,   key: 'NEXT_PUBLIC_TIKTOK_URL',   label: 'TikTok',      color: 'hover:text-[#ff0050]' },
-  { Icon: FaFacebook, key: 'NEXT_PUBLIC_FACEBOOK_URL', label: 'Facebook',    color: 'hover:text-[#1877F2]' },
-  { Icon: FaYoutube,  key: 'NEXT_PUBLIC_YOUTUBE_URL',  label: 'YouTube',     color: 'hover:text-[#FF0000]' },
+  { Icon: FaXTwitter, key: 'https://x.com/infintygadgets',  label: 'X / Twitter', color: 'hover:text-[#1DA1F2]' },
+  { Icon: FaTiktok,   key: 'https://www.tiktok.com/@infinity.gadget4',   label: 'TikTok',      color: 'hover:text-[#ff0050]' },
+  { Icon: FaWhatsapp,  key: 'https://t.co/1dGaD9Zzcr',  label: 'Whatsapp',     color: 'hover:text-[#FF0000]' },
 ]
 
 export default function SocialShareLinks() {
