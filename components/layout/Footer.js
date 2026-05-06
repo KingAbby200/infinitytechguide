@@ -1,11 +1,10 @@
 import Link from 'next/link'
-import { FaXTwitter, FaTiktok, FaFacebook, FaYoutube } from 'react-icons/fa6'
+import { FaXTwitter, FaTiktok, FaWhatsapp } from 'react-icons/fa6'
 
 const SOCIAL = [
-  { icon: FaXTwitter,  href: process.env.NEXT_PUBLIC_TWITTER_URL  || '#', label: 'X / Twitter' },
-  { icon: FaTiktok,    href: process.env.NEXT_PUBLIC_TIKTOK_URL   || '#', label: 'TikTok' },
-  { icon: FaFacebook,  href: process.env.NEXT_PUBLIC_FACEBOOK_URL || '#', label: 'Facebook' },
-  { icon: FaYoutube,   href: process.env.NEXT_PUBLIC_YOUTUBE_URL  || '#', label: 'YouTube' },
+  { icon: FaXTwitter,  href: process.env.NEXT_PUBLIC_TWITTER_URL  || 'https://x.com/infintygadgets', label: 'X / Twitter' },
+  { icon: FaTiktok,    href: process.env.NEXT_PUBLIC_TIKTOK_URL   || 'https://www.tiktok.com/@infinity.gadget4', label: 'TikTok' },
+  { icon: FaWhatsapp,   href: process.env.NEXT_PUBLIC_YOUTUBE_URL  || 'https://t.co/1dGaD9Zzcr', label: 'Whatsapp' },
 ]
 
 const LINKS = {
