@@ -81,7 +81,7 @@ export default function Navbar() {
           <span className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center font-bold text-black text-sm font-display group-hover:shadow-glow transition-all">
             ∞
           </span>
-          <span className="font-display font-bold text-white text-lg hidden sm:block">
+          <span className="font-display font-bold text-white text-md sm:text-lg">
             Infinity<span className="text-primary">Tech</span>
           </span>
         </Link>
