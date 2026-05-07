@@ -18,6 +18,7 @@ export const metadata = {
     type:     'website',
     locale:   'en_US',
     siteName: 'Infinity Tech Guide',
+    icons: { icon: '/icon.png' },
     images: ['./icon.png'],
   },
   twitter: {
