@@ -59,9 +59,9 @@ export default function RootLayout({ children }) {
               <Navbar />
               <main className="flex-1">
                 {children}
-                <Analytics />
               </main>
               <Footer />
+              <Analytics />
             </CartProvider>
           </ThemeProvider>
         </SessionWrapper>
