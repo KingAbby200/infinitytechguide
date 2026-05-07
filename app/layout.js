@@ -12,13 +12,13 @@ export const metadata = {
     template: '%s | Infinity Tech Guide',
   },
   description: 'Your ultimate guide to the latest tech gadgets, reviews, and news from across the galaxy.',
+  icons: { icon: './icon.png' },
   keywords: ['tech', 'gadgets', 'reviews', 'technology', 'smartphones', 'laptops', 'electronics'],
   authors: [{ name: 'Infinity Tech Guide' }],
   openGraph: {
     type:     'website',
     locale:   'en_US',
     siteName: 'Infinity Tech Guide',
-    icons: { icon: './icon.png' },
     images: ['./icon.png'],
   },
   twitter: {
