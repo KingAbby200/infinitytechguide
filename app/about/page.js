@@ -1,4 +1,4 @@
-import { FaXTwitter, FaTiktok, FaFacebook, FaYoutube } from 'react-icons/fa6'
+import { FaXTwitter, FaTiktok, FaWhatsapp } from 'react-icons/fa6'
 import NewsletterSignup from '@/components/blog/NewsletterSignup'
 
 export const metadata = {
@@ -42,10 +42,9 @@ export default function AboutPage() {
           <p className="text-gray-400 mb-8">Stay connected for the latest tech content across all platforms.</p>
           <div className="flex flex-wrap justify-center gap-4">
             {[
-              { Icon: FaXTwitter,  href: process.env.NEXT_PUBLIC_TWITTER_URL,  label: 'X / Twitter', bg: 'hover:bg-black' },
-              { Icon: FaTiktok,    href: process.env.NEXT_PUBLIC_TIKTOK_URL,   label: 'TikTok',      bg: 'hover:bg-[#010101]' },
-              { Icon: FaFacebook,  href: process.env.NEXT_PUBLIC_FACEBOOK_URL, label: 'Facebook',    bg: 'hover:bg-[#1877F2]' },
-              { Icon: FaYoutube,   href: process.env.NEXT_PUBLIC_YOUTUBE_URL,  label: 'YouTube',     bg: 'hover:bg-[#FF0000]' },
+              { Icon: FaXTwitter,  href: process.env.NEXT_PUBLIC_TWITTER_URL  || 'https://x.com/infintygadgets',  label: 'X / Twitter', bg: 'hover:bg-black' },
+              { Icon: FaTiktok,    href: process.env.NEXT_PUBLIC_TIKTOK_URL   || 'https://www.tiktok.com/@infinity.gadget4',   label: 'TikTok',      bg: 'hover:bg-[#010101]' },
+              { Icon: FaWhatsapp,  href: process.env.NEXT_PUBLIC_WHATSAPP_URL  || 'https://t.co/1dGaD9Zzcr', label: 'Whatsapp',    bg: 'hover:bg-[#1877F2]' },
             ].map(({ Icon, href, label, bg }) => (
               <a
                 key={label}
