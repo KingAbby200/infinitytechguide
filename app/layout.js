@@ -12,17 +12,30 @@ export const metadata = {
     template: '%s | Infinity Tech Guide',
   },
   description: 'Your ultimate guide to the latest tech gadgets, reviews, and news from across the galaxy.',
-  icons: { icon: './icon.png' },
+  icons: { 
+    icon: '/icon.png',
+    apple: '/icon.png', 
+  },
   keywords: ['tech', 'gadgets', 'reviews', 'technology', 'smartphones', 'laptops', 'electronics'],
   authors: [{ name: 'Infinity Tech Guide' }],
   openGraph: {
     type:     'website',
     locale:   'en_US',
     siteName: 'Infinity Tech Guide',
-    images: ['./icon.png'],
+    images: [
+      {
+        url: '/icon.png',
+        width: 1200,      
+        height: 630,
+        alt: 'Infinity Tech Guide Logo',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
+    title: 'Infinity Tech Guide',
+    description: 'Your ultimate guide to tech gadgets.',
+    images: ['/icon.png'], 
   },
   robots: {
     index:  true,
