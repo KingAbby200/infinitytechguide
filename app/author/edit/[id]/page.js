@@ -10,6 +10,10 @@ export const metadata = { title: 'Edit Post' }
 
 export default async function EditPostPage({ params }) {
   const session = await getServerSession(authOptions)
+
+  // Should be caught by middleware but guard here too
+  if (!session) redirect('/auth/signin')
+
   await connectDB()
 
   const post = await Post.findById(params.id)
@@ -19,9 +23,9 @@ export default async function EditPostPage({ params }) {
 
   if (!post) notFound()
 
-  // Authors can only edit their own posts
   const isAdmin  = session.user.role === 'admin'
   const isAuthor = post.author.toString() === session.user.id
+
   if (!isAdmin && !isAuthor) redirect('/author')
 
   const [categories, subcategories] = await Promise.all([
@@ -29,13 +33,21 @@ export default async function EditPostPage({ params }) {
     Category.find({ parent: { $ne: null } }).sort({ name: 1 }).lean(),
   ])
 
+  // Fully serialize — converts ObjectIds, Dates, etc. to plain JSON
+  // This prevents "cannot pass non-serialisable value" errors
+  const serialized = JSON.parse(JSON.stringify({
+    post,
+    categories,
+    subcategories,
+  }))
+
   return (
     <div>
       <h1 className="font-display font-bold text-2xl text-white mb-8">Edit Post</h1>
       <PostForm
-        post={JSON.parse(JSON.stringify(post))}
-        categories={JSON.parse(JSON.stringify(categories))}
-        subcategories={JSON.parse(JSON.stringify(subcategories))}
+        post={serialized.post}
+        categories={serialized.categories}
+        subcategories={serialized.subcategories}
         isAdmin={isAdmin}
       />
     </div>
