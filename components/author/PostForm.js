@@ -1,52 +1,56 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import dynamic from 'next/dynamic'
-import { HiPhotograph, HiTag, HiX, HiSave, HiEye, HiChevronDown } from 'react-icons/hi'
+import { HiPhotograph, HiTag, HiX, HiSave, HiChevronDown } from 'react-icons/hi'
 
-// Load editor client-side only (Tiptap uses browser APIs)
-const TiptapEditor = dynamic(() => import('@/components/editor/TiptapEditor'), {
-  ssr: false,
-  loading: () => (
-    <div className="border border-dark-border rounded-xl h-64 flex items-center justify-center text-gray-600 text-sm">
-      Loading editor…
-    </div>
-  ),
-})
+// Do NOT use dynamic() here — it resolves to undefined in Next 14 App Router
+// when the parent is already a Client Component receiving serialised server props.
+// Instead we guard rendering with a `mounted` flag so Tiptap (browser-only)
+// never runs on the server.
+import TiptapEditor from '@/components/editor/TiptapEditor'
 
 export default function PostForm({ post, categories = [], subcategories = [], isAdmin }) {
-  const router  = useRouter()
-  const isEdit  = !!post
+  const router = useRouter()
+  const isEdit = !!post
 
-  const [title,          setTitle]         = useState(post?.title          || '')
-  const [content,        setContent]       = useState(post?.content        || '')
-  const [headingImage,   setHeadingImage]  = useState(post?.headingImage   || '')
-  const [excerpt,        setExcerpt]       = useState(post?.excerpt        || '')
-  const [categoryId,     setCategoryId]    = useState(post?.category?._id?.toString() || '')
-  const [subcategoryId,  setSubcategoryId] = useState(post?.subcategory?._id?.toString() || '')
-  const [tags,           setTags]          = useState(post?.tags           || [])
+  // Guard: only render the editor after hydration
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
+  const [title,          setTitle]         = useState(post?.title           || '')
+  const [content,        setContent]       = useState(post?.content         || '')
+  const [headingImage,   setHeadingImage]  = useState(post?.headingImage    || '')
+  const [excerpt,        setExcerpt]       = useState(post?.excerpt         || '')
+  const [categoryId,     setCategoryId]    = useState(
+    post?.category?._id?.toString() || post?.category?.toString() || ''
+  )
+  const [subcategoryId,  setSubcategoryId] = useState(
+    post?.subcategory?._id?.toString() || post?.subcategory?.toString() || ''
+  )
+  const [tags,           setTags]          = useState(post?.tags            || [])
   const [tagInput,       setTagInput]      = useState('')
-  const [metaTitle,      setMetaTitle]     = useState(post?.metaTitle      || '')
-  const [metaDesc,       setMetaDesc]      = useState(post?.metaDescription|| '')
-  const [metaImage,      setMetaImage]     = useState(post?.metaImage      || '')
+  const [metaTitle,      setMetaTitle]     = useState(post?.metaTitle       || '')
+  const [metaDesc,       setMetaDesc]      = useState(post?.metaDescription || '')
+  const [metaImage,      setMetaImage]     = useState(post?.metaImage       || '')
 
   // New category on-the-fly (admin only)
-  const [newCatName,    setNewCatName]    = useState('')
-  const [newSubName,    setNewSubName]    = useState('')
-  const [showNewCat,    setShowNewCat]    = useState(false)
-  const [showNewSub,    setShowNewSub]    = useState(false)
+  const [newCatName,  setNewCatName]  = useState('')
+  const [newSubName,  setNewSubName]  = useState('')
+  const [showNewCat,  setShowNewCat]  = useState(false)
+  const [showNewSub,  setShowNewSub]  = useState(false)
 
-  const [uploading,  setUploading]  = useState(false)
-  const [saving,     setSaving]     = useState(false)
-  const [errors,     setErrors]     = useState({})
-  const [showSeo,    setShowSeo]    = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [saving,    setSaving]    = useState(false)
+  const [errors,    setErrors]    = useState({})
+  const [showSeo,   setShowSeo]   = useState(false)
 
   const imgRef = useRef()
 
-  // Filter subcategories for selected category
-  const filteredSubs = subcategories.filter(
-    s => s.parent?.toString() === categoryId || s.parent === categoryId
-  )
+  // Filter subcategories for selected parent category
+  const filteredSubs = subcategories.filter(s => {
+    const parentId = s.parent?._id?.toString() || s.parent?.toString() || ''
+    return parentId === categoryId
+  })
 
   async function uploadHeadingImage(file) {
     setUploading(true)
@@ -100,14 +104,14 @@ export default function PostForm({ post, categories = [], subcategories = [], is
         content,
         headingImage,
         excerpt,
-        categoryId:        showNewCat ? '__new__' : categoryId,
-        subcategoryId:     showNewSub ? '__new__' : (subcategoryId || null),
-        newCategoryName:   showNewCat ? newCatName : undefined,
-        newSubcategoryName:showNewSub ? newSubName : undefined,
+        categoryId:         showNewCat ? '__new__' : categoryId,
+        subcategoryId:      showNewSub ? '__new__' : (subcategoryId || null),
+        newCategoryName:    showNewCat ? newCatName : undefined,
+        newSubcategoryName: showNewSub ? newSubName : undefined,
         tags,
-        metaTitle:        metaTitle  || title,
-        metaDescription:  metaDesc   || excerpt,
-        metaImage:        metaImage  || headingImage,
+        metaTitle:        metaTitle || title,
+        metaDescription:  metaDesc  || excerpt,
+        metaImage:        metaImage || headingImage,
       }
 
       if (asDraft && !isEdit) payload.status = 'draft'
@@ -140,7 +144,7 @@ export default function PostForm({ post, categories = [], subcategories = [], is
         </div>
       )}
 
-      {/* Title */}
+      {/* ── Title ── */}
       <div>
         <label className="block text-sm text-gray-400 mb-2">
           Post Title <span className="text-red-400">*</span>
@@ -157,7 +161,7 @@ export default function PostForm({ post, categories = [], subcategories = [], is
         {errors.title && <p className="text-red-400 text-xs mt-1">{errors.title}</p>}
       </div>
 
-      {/* Heading Image */}
+      {/* ── Heading Image ── */}
       <div>
         <label className="block text-sm text-gray-400 mb-2">
           Heading Image <span className="text-red-400">*</span>
@@ -172,7 +176,13 @@ export default function PostForm({ post, categories = [], subcategories = [], is
               errors.headingImage ? 'border-red-500/50' : 'border-dark-border'
             }`}
           />
-          <input type="file" accept="image/*" ref={imgRef} className="hidden" onChange={e => e.target.files?.[0] && uploadHeadingImage(e.target.files[0])} />
+          <input
+            type="file"
+            accept="image/*"
+            ref={imgRef}
+            className="hidden"
+            onChange={e => e.target.files?.[0] && uploadHeadingImage(e.target.files[0])}
+          />
           <button
             type="button"
             onClick={() => imgRef.current?.click()}
@@ -191,7 +201,7 @@ export default function PostForm({ post, categories = [], subcategories = [], is
         )}
       </div>
 
-      {/* Category + Subcategory */}
+      {/* ── Category + Subcategory ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm text-gray-400 mb-2">
@@ -216,7 +226,6 @@ export default function PostForm({ post, categories = [], subcategories = [], is
                   type="button"
                   onClick={() => setShowNewCat(true)}
                   className="px-3 py-2 rounded-xl bg-dark-card border border-dark-border text-gray-400 hover:text-primary hover:border-primary/30 text-xs transition-all"
-                  title="Add new category"
                 >
                   + New
                 </button>
@@ -241,7 +250,9 @@ export default function PostForm({ post, categories = [], subcategories = [], is
         </div>
 
         <div>
-          <label className="block text-sm text-gray-400 mb-2">Subcategory <span className="text-gray-600">(optional)</span></label>
+          <label className="block text-sm text-gray-400 mb-2">
+            Subcategory <span className="text-gray-600">(optional)</span>
+          </label>
           {!showNewSub ? (
             <div className="flex gap-2">
               <select
@@ -283,20 +294,32 @@ export default function PostForm({ post, categories = [], subcategories = [], is
         </div>
       </div>
 
-      {/* Content editor */}
+      {/* ── Content Editor ── */}
       <div>
         <label className="block text-sm text-gray-400 mb-2">
           Content <span className="text-red-400">*</span>
         </label>
-        <TiptapEditor
-          content={content}
-          onChange={setContent}
-          placeholder="Write your post here. Use the toolbar above to format text, add images, links, and headings…"
-        />
+
+        {/* Only render Tiptap after client hydration */}
+        {mounted ? (
+          <TiptapEditor
+            content={content}
+            onChange={setContent}
+            placeholder="Write your post here. Use the toolbar to format text, add images, links, and headings…"
+          />
+        ) : (
+          <div className="border border-dark-border rounded-xl h-64 flex items-center justify-center text-gray-600 text-sm bg-dark-card">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-primary/40 border-t-primary rounded-full animate-spin" />
+              Loading editor…
+            </div>
+          </div>
+        )}
+
         {errors.content && <p className="text-red-400 text-xs mt-1">{errors.content}</p>}
       </div>
 
-      {/* Excerpt */}
+      {/* ── Excerpt ── */}
       <div>
         <label className="block text-sm text-gray-400 mb-2">
           Excerpt <span className="text-gray-600">(auto-generated if empty)</span>
@@ -312,13 +335,13 @@ export default function PostForm({ post, categories = [], subcategories = [], is
         <p className="text-gray-600 text-xs mt-1 text-right">{excerpt.length}/300</p>
       </div>
 
-      {/* Tags */}
+      {/* ── Tags ── */}
       <div>
         <label className="block text-sm text-gray-400 mb-2">
           <HiTag size={14} className="inline mr-1" />
-          Tags <span className="text-gray-600">(press Enter or comma to add, max 10)</span>
+          Tags <span className="text-gray-600">(press Enter or comma, max 10)</span>
         </label>
-        <div className={`flex flex-wrap gap-2 p-3 rounded-xl bg-dark-card border border-dark-border min-h-[48px] focus-within:border-primary/50 transition-colors`}>
+        <div className="flex flex-wrap gap-2 p-3 rounded-xl bg-dark-card border border-dark-border min-h-[48px] focus-within:border-primary/50 transition-colors">
           {tags.map(t => (
             <span key={t} className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs">
               #{t}
@@ -338,14 +361,17 @@ export default function PostForm({ post, categories = [], subcategories = [], is
         </div>
       </div>
 
-      {/* SEO accordion */}
+      {/* ── SEO accordion ── */}
       <div className="border border-dark-border rounded-xl overflow-hidden">
         <button
           type="button"
           onClick={() => setShowSeo(v => !v)}
           className="w-full flex items-center justify-between px-5 py-4 bg-dark-card hover:bg-dark-hover transition-colors text-left"
         >
-          <span className="text-sm font-medium text-gray-300">SEO & Metadata <span className="text-gray-600 font-normal">(optional — auto-filled if empty)</span></span>
+          <span className="text-sm font-medium text-gray-300">
+            SEO &amp; Metadata{' '}
+            <span className="text-gray-600 font-normal">(optional — auto-filled if empty)</span>
+          </span>
           <HiChevronDown size={16} className={`text-gray-400 transition-transform ${showSeo ? 'rotate-180' : ''}`} />
         </button>
         {showSeo && (
@@ -386,7 +412,7 @@ export default function PostForm({ post, categories = [], subcategories = [], is
         )}
       </div>
 
-      {/* Save buttons */}
+      {/* ── Save buttons ── */}
       <div className="flex flex-wrap gap-3 pt-2">
         <button
           type="button"
@@ -395,7 +421,13 @@ export default function PostForm({ post, categories = [], subcategories = [], is
           className="btn-primary px-8 py-3 rounded-xl font-semibold text-sm flex items-center gap-2 shadow-glow-sm disabled:opacity-60"
         >
           <HiSave size={16} />
-          {saving ? 'Saving…' : isEdit ? 'Save Changes' : isAdmin ? 'Publish' : 'Submit for Review'}
+          {saving
+            ? 'Saving…'
+            : isEdit
+              ? 'Save Changes'
+              : isAdmin
+                ? 'Publish'
+                : 'Submit for Review'}
         </button>
 
         {!isEdit && (
